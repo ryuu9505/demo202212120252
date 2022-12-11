@@ -1,0 +1,6 @@
+rootProject.name = 'demo7'
+include(
+        'oauth2client',
+        'resource-server',
+        'shared-object'
+)
