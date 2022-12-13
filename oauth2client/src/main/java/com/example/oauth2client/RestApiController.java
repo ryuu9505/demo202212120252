@@ -4,6 +4,7 @@ import com.example.sharedobject.AccessToken;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpResponse;
@@ -16,22 +17,14 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import static org.springframework.http.HttpStatus.Series.CLIENT_ERROR;
-import static org.springframework.http.HttpStatus.Series.SERVER_ERROR;
-
 @RestController
+@Slf4j
 @RequiredArgsConstructor
 public class RestApiController {
 
@@ -47,12 +40,19 @@ public class RestApiController {
     @GetMapping("/tokenExpire")
     public Map<String,Object> tokenExpire(AccessToken accessToken){
 
+        restTemplate.getInterceptors().add((request, body, execution) -> {
+            ClientHttpResponse response = execution.execute(request,body);
+            response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+            return response;
+        });
+
         HttpHeaders header = new HttpHeaders();
         header.add("Authorization", "Bearer " + accessToken.getToken());
         HttpEntity<?> entity = new HttpEntity<>(header);
         String url = "http://localhost:8082/tokenExpire";
-        ResponseEntity<Map<String,Object>> response = restTemplate.exchange(url, HttpMethod.GET, entity, new ParameterizedTypeReference<>() {});
 
+        ResponseEntity<Map<String,Object>> response = restTemplate.exchange(url, HttpMethod.GET, entity, new ParameterizedTypeReference<>() {});
+        log.info("response={}", response);
         return response.getBody();
     }
 
@@ -84,4 +84,5 @@ public class RestApiController {
 
         return authorizedClient.getAccessToken();
     }
+
 }

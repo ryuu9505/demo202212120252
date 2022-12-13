@@ -35,7 +35,13 @@ public class AppConfig {
 
     @Bean
     public AuthorizationServerSettings providerSettings(){
-        return AuthorizationServerSettings.builder().issuer("http://localhost:9000").build();
+        return AuthorizationServerSettings.builder()
+                .issuer("http://localhost:9000")
+                .authorizationEndpoint("/oauth2/authorize")
+                .jwkSetEndpoint("/oauth2/jwks")
+                .tokenEndpoint("/oauth2/token")
+                .oidcUserInfoEndpoint("/userinfo")
+                .build();
     }
 
     @Bean
