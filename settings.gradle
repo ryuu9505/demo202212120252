@@ -1,6 +1,8 @@
 rootProject.name = 'demo7'
 include(
+        'authorization-server',
         'oauth2client',
         'resource-server',
+        'resource-server2',
         'shared-object'
 )
